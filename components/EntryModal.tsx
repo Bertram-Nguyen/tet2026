@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { BANK_LIST } from '../constants';
+import { BANK_LIST, GOOGLE_FORM_CONFIG } from '../constants';
 import { UserData } from '../types';
 import Fireworks from './Fireworks';
 
@@ -12,14 +13,51 @@ const EntryModal: React.FC<EntryModalProps> = ({ onComplete }) => {
   const [bank, setBank] = useState(BANK_LIST[0]);
   const [account, setAccount] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const submitToGoogleSheets = async (userData: UserData) => {
+    // Nếu chưa config URL thật thì bỏ qua
+    if (GOOGLE_FORM_CONFIG.actionURL.includes("1FAIpQLSdYvFscITy_QAZJGYpjRzMyq3ZEmFl6EssVeVRfUBpxCA3M7Q")) {
+        console.warn("Chưa cấu hình Google Form URL trong constants.ts");
+        return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append(GOOGLE_FORM_CONFIG.entryIDs.name, userData.senderName);
+      formData.append(GOOGLE_FORM_CONFIG.entryIDs.bank, userData.bankName);
+      formData.append(GOOGLE_FORM_CONFIG.entryIDs.account, userData.accountNumber);
+
+      // Gửi request 'no-cors' để tránh lỗi CORS (Google Form không trả về JSON cho client khác domain)
+      // Tuy nhiên dữ liệu vẫn được ghi nhận.
+      await fetch(GOOGLE_FORM_CONFIG.actionURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      });
+      console.log("Đã gửi dữ liệu về Google Sheet!");
+    } catch (err) {
+      console.error("Lỗi khi gửi form:", err);
+      // Không chặn người dùng chơi tiếp nếu lỗi mạng
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !account.trim()) {
       setError('Vui lòng điền đủ thông tin để nhận lộc nha!');
       return;
     }
-    onComplete({ senderName: name, bankName: bank, accountNumber: account });
+
+    setIsSubmitting(true);
+    const userData = { senderName: name, bankName: bank, accountNumber: account };
+
+    // 1. Gửi về Google Sheet (chạy ngầm, không cần chờ quá lâu)
+    await submitToGoogleSheets(userData);
+
+    // 2. Hoàn tất và vào game
+    onComplete(userData);
+    setIsSubmitting(false);
   };
 
   return (
@@ -67,6 +105,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ onComplete }) => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Nhập tên..."
+                        disabled={isSubmitting}
                         className="w-full bg-[#FFF0F0] border-2 border-transparent focus:border-[#FF6B6B] focus:bg-white rounded-2xl px-5 py-3.5 text-gray-700 font-bold outline-none transition-all placeholder-[#FFB8B8]"
                     />
                 </div>
@@ -80,6 +119,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ onComplete }) => {
                             <select
                                 value={bank}
                                 onChange={(e) => setBank(e.target.value)}
+                                disabled={isSubmitting}
                                 className="w-full bg-[#FFF0F0] border-2 border-transparent focus:border-[#FF6B6B] focus:bg-white rounded-2xl px-3 py-3.5 text-gray-700 font-bold outline-none appearance-none transition-all text-sm"
                             >
                                 {BANK_LIST.map((b) => (
@@ -100,6 +140,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ onComplete }) => {
                             value={account}
                             onChange={(e) => setAccount(e.target.value)}
                             placeholder="Số TK..."
+                            disabled={isSubmitting}
                             className="w-full bg-[#FFF0F0] border-2 border-transparent focus:border-[#FF6B6B] focus:bg-white rounded-2xl px-5 py-3.5 text-gray-700 font-bold outline-none transition-all placeholder-[#FFB8B8]"
                         />
                     </div>
@@ -113,10 +154,17 @@ const EntryModal: React.FC<EntryModalProps> = ({ onComplete }) => {
 
                 <button
                     type="submit"
-                    className="w-full mt-2 bg-gradient-to-r from-[#FF4757] to-[#FF6B6B] text-white font-black text-lg py-4 rounded-2xl shadow-[0_6px_0_#D63031] active:shadow-none active:translate-y-[6px] transition-all hover:brightness-110 flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full mt-2 bg-gradient-to-r from-[#FF4757] to-[#FF6B6B] text-white font-black text-lg py-4 rounded-2xl shadow-[0_6px_0_#D63031] active:shadow-none active:translate-y-[6px] transition-all hover:brightness-110 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                    <span>VÀO NHẬN LÌ XÌ</span>
-                    <span className="text-xl">🧧</span>
+                    {isSubmitting ? (
+                        <span>Đang xử lý...</span>
+                    ) : (
+                        <>
+                            <span>VÀO NHẬN LÌ XÌ</span>
+                            <span className="text-xl">🧧</span>
+                        </>
+                    )}
                 </button>
             </form>
         </div>

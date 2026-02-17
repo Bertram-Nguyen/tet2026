@@ -1,3 +1,4 @@
+
 export const TOTAL_ENVELOPES = 2026;
 export const FIXED_AMOUNT = 8386;
 
@@ -35,3 +36,17 @@ export const BANK_LIST = [
 // Note: For production on Github, ensure this URL is stable or replace with a local asset.
 // This is a placeholder for a Peach Blossom tree.
 export const TREE_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Prunus_persica_tree.jpg/800px-Prunus_persica_tree.jpg";
+
+// --- GOOGLE SHEETS INTEGRATION ---
+// Thay thế các giá trị dưới đây bằng ID từ Google Form của bạn
+export const GOOGLE_FORM_CONFIG = {
+  // Link dạng: https://docs.google.com/forms/u/0/d/e/......./formResponse
+  actionURL: "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdYvFscITy_QAZJGYpjRzMyq3ZEmFl6EssVeVRfUBpxCA3M7Q/formResponse", 
+  
+  // Lấy các entry ID từ "Get pre-filled link"
+  entryIDs: {
+    name: "entry.952747159",    // Thay bằng ID trường Tên
+    bank: "entry.2126110762",    // Thay bằng ID trường Ngân hàng
+    account: "entry.1146902678"  // Thay bằng ID trường Số tài khoản
+  }
+};
