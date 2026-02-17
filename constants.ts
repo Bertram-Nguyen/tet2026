@@ -38,15 +38,14 @@ export const BANK_LIST = [
 export const TREE_IMAGE_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Prunus_persica_tree.jpg/800px-Prunus_persica_tree.jpg";
 
 // --- GOOGLE SHEETS INTEGRATION ---
-// Thay thế các giá trị dưới đây bằng ID từ Google Form của bạn
 export const GOOGLE_FORM_CONFIG = {
-  // Link dạng: https://docs.google.com/forms/u/0/d/e/......./formResponse
+  // Link dạng: https://docs.google.com/forms/u/0/d/e/[FORM_ID]/formResponse
   actionURL: "https://docs.google.com/forms/u/0/d/e/1FAIpQLSdYvFscITy_QAZJGYpjRzMyq3ZEmFl6EssVeVRfUBpxCA3M7Q/formResponse", 
   
-  // Lấy các entry ID từ "Get pre-filled link"
+  // Các mã số entry ID tương ứng với từng trường trong Google Form
   entryIDs: {
-    name: "entry.952747159",    // Thay bằng ID trường Tên
-    bank: "entry.2126110762",    // Thay bằng ID trường Ngân hàng
-    account: "entry.1146902678"  // Thay bằng ID trường Số tài khoản
+    name: "entry.952747159",     // Tên người gửi
+    bank: "entry.2126110762",    // Ngân hàng
+    account: "entry.1146902678"  // Số tài khoản
   }
 };
